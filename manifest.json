@@ -4,7 +4,10 @@
   "description": "QR Scanner",
   "manifest_version": 3,
   "author": "Rani Linkov",
-  "permissions": [],
+  "permissions": [
+    "scripting",
+    "activeTab"
+  ],
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
