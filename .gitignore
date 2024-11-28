@@ -1,0 +1,6 @@
+# Editor directories and files
+.idea/
+
+
+# MacOS specific files
+.DS_Store
