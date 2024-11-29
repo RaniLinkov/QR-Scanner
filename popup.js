@@ -1,14 +1,39 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const data = chrome.storage.local.get('QRCodeData');
+    const {QRCodeDataList} = await chrome.storage.local.get('QRCodeDataList');
 
-    if (data) {
-        const content = document.getElementById('content');
-
-        content.innerText = `QR Code data: ${data}`;
+    if (QRCodeDataList) {
+        handleData(QRCodeDataList);
     } else {
         handleNoData();
     }
 });
+
+function handleData(data) {
+    const content = document.getElementById('content');
+
+    const dataListElement = createDataListElement(data);
+
+    content.appendChild(dataListElement);
+}
+
+function createDataListElement(data) {
+    const retVal = document.createElement('ul');
+
+    for (const item of data) {
+        const dataItemElement = createDataItemElement(item);
+        retVal.appendChild(dataItemElement);
+    }
+
+    return retVal;
+}
+
+function createDataItemElement(data) {
+    const retVal = document.createElement('li');
+
+    retVal.innerText = JSON.stringify(data);
+
+    return retVal;
+}
 
 function handleNoData() {
     const content = document.getElementById('content');

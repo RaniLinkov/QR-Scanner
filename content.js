@@ -6,6 +6,7 @@
     const QR_SCANNER_SELECTION_BOX_ID = 'qr-scanner-selection-box';
     const DATA_START_X_ATTRIBUTE = 'data-start-x';
     const DATA_START_Y_ATTRIBUTE = 'data-start-y';
+    const MAX_QR_DATA_LIST_LENGTH = 3;
 
     //endregion
 
@@ -89,7 +90,19 @@
 
             const QRCodeData = scanQRCode(croppedImageData);
 
-            await chrome.storage.local.set({QRCodeData});
+            let {QRCodeDataList} = await chrome.storage.local.get('QRCodeDataList');
+
+            if (!QRCodeDataList) {
+                QRCodeDataList = [];
+            }
+
+            while (QRCodeDataList.length >= MAX_QR_DATA_LIST_LENGTH) {
+                QRCodeDataList.pop();
+            }
+
+            QRCodeDataList.unshift({QRCodeData, timestamp: new Date().toLocaleString()});
+
+            await chrome.storage.local.set({QRCodeDataList});
         });
 
         //crop image
@@ -152,7 +165,7 @@ async function cropImageData(dataUrl, selectionBox) {
         selectionBox.height
     );
 
-    return canvas.toDataURL();
+    return context.getImageData(0, 0, selectionBox.width, selectionBox.height);
 }
 
 function loadImage(dataUrl) {
