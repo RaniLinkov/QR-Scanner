@@ -93,10 +93,9 @@
                 const QRCodeData = scanQRCode(croppedImageData);
 
                 if (isLink(QRCodeData)) {
-                    console.log('Link:', QRCodeData);
                     window.open(QRCodeData, '_blank');
                 } else {
-                    console.log('Data:', QRCodeData);
+                    createSnackbar('No QR code found or the QR code does not contain a valid URL.');
                 }
             });
         }
@@ -176,4 +175,27 @@ function loadImage(dataUrl) {
 function isLink(data) {
     const urlPattern = /^(https?:\/\/)([\da-z\.-]+\.[a-z\.]{2,6}|[\d\.]+)([\/\w\.-])\/?$/;
     return urlPattern.test(data);
+}
+
+function createSnackbar(message) {
+    const snackbar = document.createElement('div');
+    snackbar.className = 'snackbar';
+    snackbar.innerText = message;
+    snackbar.style.position = 'fixed';
+    snackbar.style.top = '1rem';
+    snackbar.style.left = '50%';
+    snackbar.style.transform = 'translateX(-50%)';
+    snackbar.style.padding = '10px 20px';
+    snackbar.style.backgroundColor = '#e3f2fd';
+    snackbar.style.color = '#080341';
+    snackbar.style.borderRadius = '5px';
+    snackbar.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.3)';
+    snackbar.style.zIndex = '2000000000';
+    snackbar.style.transition = 'opacity 0.5s';
+
+    document.body.appendChild(snackbar);
+
+    setTimeout(() => {
+        snackbar.remove();
+    }, 3000);
 }
