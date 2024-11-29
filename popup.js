@@ -8,29 +8,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-function handleData(data) {
+function handleData(dataList) {
     const content = document.getElementById('content');
 
-    const dataListElement = createDataListElement(data);
+    const dataListElement = createDataListElement(dataList);
 
     content.appendChild(dataListElement);
 }
 
-function createDataListElement(data) {
+function createDataListElement(dataList) {
     const retVal = document.createElement('ul');
 
-    for (const item of data) {
-        const dataItemElement = createDataItemElement(item);
+    for (const itemItem of dataList) {
+        const dataItemElement = createDataItemElement(itemItem);
         retVal.appendChild(dataItemElement);
     }
 
     return retVal;
 }
 
-function createDataItemElement(data) {
+function createDataItemElement(dataItem) {
     const retVal = document.createElement('li');
 
-    retVal.innerText = JSON.stringify(data);
+    const dataElement = document.createElement("span");
+    dataElement.innerText = dataItem.data;
+    dataElement.classList.add('data');
+
+    const timestampElement = document.createElement("span");
+    timestampElement.innerText = dataItem.timestamp;
+    timestampElement.classList.add('timestamp');
+
+    retVal.appendChild(dataElement);
+    retVal.appendChild(timestampElement);
 
     return retVal;
 }
