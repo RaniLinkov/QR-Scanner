@@ -91,8 +91,6 @@
                 const croppedImageData = await getCroppedImageData(image, adjustedSelectionBox);
 
                 const QRCodeData = scanQRCode(croppedImageData);
-
-                await updateQRDataListInStorage(QRCodeData);
             });
         }
 
@@ -165,20 +163,4 @@ function loadImage(dataUrl) {
         image.onerror = reject;
         image.src = dataUrl;
     });
-}
-
-async function updateQRDataListInStorage(data) {
-    let {QRCodeDataList} = await chrome.storage.local.get('QRCodeDataList');
-
-    if (!QRCodeDataList) {
-        QRCodeDataList = [];
-    }
-
-    while (QRCodeDataList.length >= 3) {
-        QRCodeDataList.pop();
-    }
-
-    QRCodeDataList.unshift({data, timestamp: new Date().toLocaleString()});
-
-    await chrome.storage.local.set({QRCodeDataList});
 }
