@@ -4,7 +4,7 @@ chrome.runtime.onMessage.addListener(
             null,
             {format: 'png'},
             (dataUrl) => {
-                sendResponse({imgSrc: dataUrl});
+                sendResponse({dataUrl});
             }
         );
 

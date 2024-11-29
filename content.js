@@ -74,6 +74,43 @@
         };
     }
 
+    function handleCapture(dataUrl, selectionBox) {
+        cropImage(dataUrl, selectionBox, scanQRCode);
+    }
+
+    function scanQRCode(dataUrl) {
+        console.log('Scanning QR code...');
+        console.log(dataUrl);
+    }
+
+    function cropImage(dataUrl, selectionBox, callback) {
+        const image = new Image();
+
+        image.onload = () => {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+
+            canvas.width = selectionBox.width;
+            canvas.height = selectionBox.height;
+
+            context.drawImage(
+                image,
+                selectionBox.left,
+                selectionBox.top,
+                selectionBox.width,
+                selectionBox.height,
+                0,
+                0,
+                selectionBox.width,
+                selectionBox.height
+            );
+
+            callback(canvas.toDataURL());
+        };
+
+        image.src = dataUrl;
+    }
+
     function onMouseDown(event) {
         if (event.button !== 0) return;
 
@@ -96,7 +133,7 @@
         destroyOverlay();
 
         chrome.runtime.sendMessage({action: 'capture'}, (response) => {
-            console.log(response);
+            handleCapture(response.dataUrl, adjustedSelectionBox);
         });
 
         //crop image
