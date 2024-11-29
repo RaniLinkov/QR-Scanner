@@ -134,8 +134,6 @@ function createAdjustedSelectionBox(selectionBoxElement) {
 }
 
 function scanQRCode(imageData) {
-    console.log('Scanning QR code...');
-
     const result = jsQR(imageData.data, imageData.width, imageData.height);
 
     return result?.data;

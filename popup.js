@@ -1,4 +1,3 @@
-//TODO: remove, this is just for testing
 function handleError(error) {
     const content = document.getElementById('content');
 
