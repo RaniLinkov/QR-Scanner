@@ -1,19 +1,17 @@
-console.debug('Content script loaded');
-
 (() => {
     console.debug('Content script executed');
 
     //region Constants
     const QR_SCANNER_OVERLAY_ID = 'qr-scanner-overlay';
     const QR_SCANNER_SELECTION_BOX_ID = 'qr-scanner-selection-box';
+    const DATA_START_X_ATTRIBUTE = 'data-start-x';
+    const DATA_START_Y_ATTRIBUTE = 'data-start-y';
 
     //endregion
 
     //region Variables
     let overlayElement = null;
     let selectionBoxElement = null;
-    let startX = null;
-    let startY = null;
     //endregion
 
     //region Functions
@@ -40,7 +38,7 @@ console.debug('Content script loaded');
         }
     }
 
-    function createSelectionBox() {
+    function createSelectionBox(startX, startY) {
         const retVal = document.createElement('div');
         retVal.id = QR_SCANNER_SELECTION_BOX_ID;
 
@@ -49,11 +47,16 @@ console.debug('Content script loaded');
         retVal.style.pointerEvents = "none";
         retVal.style.left = `${startX}px`;
         retVal.style.top = `${startY}px`;
+        retVal.setAttribute(DATA_START_X_ATTRIBUTE, startX);
+        retVal.setAttribute(DATA_START_Y_ATTRIBUTE, startY);
 
         return retVal;
     }
 
     function updateSelectionBox(currentX, currentY) {
+        const startX = parseInt(selectionBoxElement.getAttribute(DATA_START_X_ATTRIBUTE));
+        const startY = parseInt(selectionBoxElement.getAttribute(DATA_START_Y_ATTRIBUTE));
+
         selectionBoxElement.style.left = `${Math.min(startX, currentX)}px`;
         selectionBoxElement.style.top = `${Math.min(startY, currentY)}px`;
         selectionBoxElement.style.width = `${Math.abs(currentX - startX)}px`;
@@ -63,10 +66,9 @@ console.debug('Content script loaded');
     function onMouseDown(event) {
         if (event.button !== 0) return;
 
-        startX = event.clientX;
-        startY = event.clientY;
+        event.preventDefault();
 
-        selectionBoxElement = createSelectionBox();
+        selectionBoxElement = createSelectionBox(event.clientX, event.clientY);
         overlayElement.appendChild(selectionBoxElement);
 
         overlayElement.addEventListener('mousemove', onMouseMove);
@@ -78,7 +80,11 @@ console.debug('Content script loaded');
     }
 
     function onMouseUp() {
+        //create adjusted selection box
         destroyOverlay();
+
+        //captureVisibleTab
+        //crop image
     }
 
     //endregion
@@ -86,6 +92,11 @@ console.debug('Content script loaded');
     destroyOverlay();
 
     window.addEventListener('blur', destroyOverlay);
+    window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            destroyOverlay();
+        }
+    });
 
     overlayElement = createOverlay();
 

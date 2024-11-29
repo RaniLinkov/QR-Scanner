@@ -21,6 +21,8 @@ scanButton.addEventListener("click", async () => {
     await chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
         const [tab] = tabs;
 
+        if (tab.url?.startsWith("chrome://")) return undefined;
+
         chrome.scripting.executeScript({
             target: {
                 tabId: tab.id
