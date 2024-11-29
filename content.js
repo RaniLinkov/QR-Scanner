@@ -6,7 +6,6 @@
     const QR_SCANNER_SELECTION_BOX_ID = 'qr-scanner-selection-box';
     const DATA_START_X_ATTRIBUTE = 'data-start-x';
     const DATA_START_Y_ATTRIBUTE = 'data-start-y';
-    const MAX_QR_DATA_LIST_LENGTH = 3;
 
     //endregion
 
@@ -86,23 +85,12 @@
         destroyOverlay();
 
         chrome.runtime.sendMessage({action: 'capture'}, async (response) => {
-            const croppedImageData = await cropImageData(response.dataUrl, adjustedSelectionBox);
+            const image = await loadImage(response.dataUrl);
+            const croppedImageData = await getCroppedImageData(image, adjustedSelectionBox);
 
             const QRCodeData = scanQRCode(croppedImageData);
 
-            let {QRCodeDataList} = await chrome.storage.local.get('QRCodeDataList');
-
-            if (!QRCodeDataList) {
-                QRCodeDataList = [];
-            }
-
-            while (QRCodeDataList.length >= MAX_QR_DATA_LIST_LENGTH) {
-                QRCodeDataList.pop();
-            }
-
-            QRCodeDataList.unshift({QRCodeData, timestamp: new Date().toLocaleString()});
-
-            await chrome.storage.local.set({QRCodeDataList});
+            await updateQRDataListInStorage(QRCodeData);
         });
 
         //crop image
@@ -144,9 +132,7 @@ function scanQRCode(dataUrl) {
     return 'QR Code data';
 }
 
-async function cropImageData(dataUrl, selectionBox) {
-    const image = await loadImage(dataUrl);
-
+async function getCroppedImageData(image, selectionBox) {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
 
@@ -175,4 +161,20 @@ function loadImage(dataUrl) {
         image.onerror = reject;
         image.src = dataUrl;
     });
+}
+
+async function updateQRDataListInStorage(data) {
+    let {QRCodeDataList} = await chrome.storage.local.get('QRCodeDataList');
+
+    if (!QRCodeDataList) {
+        QRCodeDataList = [];
+    }
+
+    while (QRCodeDataList.length >= 3) {
+        QRCodeDataList.pop();
+    }
+
+    QRCodeDataList.unshift({data, timestamp: new Date().toLocaleString()});
+
+    await chrome.storage.local.set({QRCodeDataList});
 }
