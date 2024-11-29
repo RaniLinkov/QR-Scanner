@@ -91,6 +91,13 @@
                 const croppedImageData = await getCroppedImageData(image, adjustedSelectionBox);
 
                 const QRCodeData = scanQRCode(croppedImageData);
+
+                if (isLink(QRCodeData)) {
+                    console.log('Link:', QRCodeData);
+                    window.open(QRCodeData, '_blank');
+                } else {
+                    console.log('Data:', QRCodeData);
+                }
             });
         }
 
@@ -127,11 +134,12 @@ function createAdjustedSelectionBox(selectionBoxElement) {
     };
 }
 
-function scanQRCode(dataUrl) {
+function scanQRCode(imageData) {
     console.log('Scanning QR code...');
-    console.log(dataUrl);
 
-    return 'QR Code data';
+    const result = jsQR(imageData.data, imageData.width, imageData.height);
+
+    return result?.data;
 }
 
 async function getCroppedImageData(image, selectionBox) {
@@ -163,4 +171,9 @@ function loadImage(dataUrl) {
         image.onerror = reject;
         image.src = dataUrl;
     });
+}
+
+function isLink(data) {
+    const urlPattern = /^(https?:\/\/)([\da-z\.-]+\.[a-z\.]{2,6}|[\d\.]+)([\/\w\.-])\/?$/;
+    return urlPattern.test(data);
 }
