@@ -25,8 +25,8 @@
         retVal.style.width = '100%';
         retVal.style.height = '100%';
         retVal.style.zIndex = '2000000000';
-        retVal.style.backgroundColor = "rgba(255, 255, 255, 0.4)";
-        retVal.style.cursor = "crosshair";
+        retVal.style.backgroundColor = 'rgba(255, 255, 255, 0.4)';
+        retVal.style.cursor = 'crosshair';
 
         return retVal;
     }
@@ -43,8 +43,8 @@
         retVal.id = QR_SCANNER_SELECTION_BOX_ID;
 
         retVal.style.position = 'absolute';
-        retVal.style.border = "1.5px dashed #080341";
-        retVal.style.pointerEvents = "none";
+        retVal.style.border = '1.5px dashed #080341';
+        retVal.style.pointerEvents = 'none';
         retVal.style.left = `${startX}px`;
         retVal.style.top = `${startY}px`;
         retVal.setAttribute(DATA_START_X_ATTRIBUTE, startX);
@@ -61,6 +61,17 @@
         selectionBoxElement.style.top = `${Math.min(startY, currentY)}px`;
         selectionBoxElement.style.width = `${Math.abs(currentX - startX)}px`;
         selectionBoxElement.style.height = `${Math.abs(currentY - startY)}px`;
+    }
+
+    function createAdjustedSelectionBox(selectionBoxElement) {
+        const dpr = window.devicePixelRatio || 1;
+
+        return {
+            left: (parseInt(selectionBoxElement.style.left, 10) + window.scrollX) * dpr,
+            top: (parseInt(selectionBoxElement.style.top, 10) + window.scrollY) * dpr,
+            width: parseInt(selectionBoxElement.style.width, 10) * dpr,
+            height: parseInt(selectionBoxElement.style.height, 10) * dpr,
+        };
     }
 
     function onMouseDown(event) {
@@ -80,10 +91,14 @@
     }
 
     function onMouseUp() {
-        //create adjusted selection box
+        const adjustedSelectionBox = createAdjustedSelectionBox(selectionBoxElement);
+
         destroyOverlay();
 
-        //captureVisibleTab
+        chrome.runtime.sendMessage({action: 'capture'}, (response) => {
+            console.log(response);
+        });
+
         //crop image
     }
 
