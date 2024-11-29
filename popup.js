@@ -1,5 +1,13 @@
-document.addEventListener('DOMContentLoaded', () => {
-    handleNoData();
+document.addEventListener('DOMContentLoaded', async () => {
+    const data = chrome.storage.local.get('QRCodeData');
+
+    if (data) {
+        const content = document.getElementById('content');
+
+        content.innerText = `QR Code data: ${data}`;
+    } else {
+        handleNoData();
+    }
 });
 
 function handleNoData() {

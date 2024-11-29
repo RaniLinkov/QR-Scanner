@@ -63,54 +63,6 @@
         selectionBoxElement.style.height = `${Math.abs(currentY - startY)}px`;
     }
 
-    function createAdjustedSelectionBox(selectionBoxElement) {
-        const dpr = window.devicePixelRatio || 1;
-
-        return {
-            left: (parseInt(selectionBoxElement.style.left, 10) + window.scrollX) * dpr,
-            top: (parseInt(selectionBoxElement.style.top, 10) + window.scrollY) * dpr,
-            width: parseInt(selectionBoxElement.style.width, 10) * dpr,
-            height: parseInt(selectionBoxElement.style.height, 10) * dpr,
-        };
-    }
-
-    function handleCapture(dataUrl, selectionBox) {
-        cropImage(dataUrl, selectionBox, scanQRCode);
-    }
-
-    function scanQRCode(dataUrl) {
-        console.log('Scanning QR code...');
-        console.log(dataUrl);
-    }
-
-    function cropImage(dataUrl, selectionBox, callback) {
-        const image = new Image();
-
-        image.onload = () => {
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-
-            canvas.width = selectionBox.width;
-            canvas.height = selectionBox.height;
-
-            context.drawImage(
-                image,
-                selectionBox.left,
-                selectionBox.top,
-                selectionBox.width,
-                selectionBox.height,
-                0,
-                0,
-                selectionBox.width,
-                selectionBox.height
-            );
-
-            callback(canvas.toDataURL());
-        };
-
-        image.src = dataUrl;
-    }
-
     function onMouseDown(event) {
         if (event.button !== 0) return;
 
@@ -132,8 +84,12 @@
 
         destroyOverlay();
 
-        chrome.runtime.sendMessage({action: 'capture'}, (response) => {
-            handleCapture(response.dataUrl, adjustedSelectionBox);
+        chrome.runtime.sendMessage({action: 'capture'}, async (response) => {
+            const croppedImageData = await cropImageData(response.dataUrl, adjustedSelectionBox);
+
+            const QRCodeData = scanQRCode(croppedImageData);
+
+            await chrome.storage.local.set({QRCodeData});
         });
 
         //crop image
@@ -156,3 +112,54 @@
 
     overlayElement.addEventListener('mousedown', onMouseDown);
 })();
+
+function createAdjustedSelectionBox(selectionBoxElement) {
+    const dpr = window.devicePixelRatio || 1;
+
+    return {
+        left: (parseInt(selectionBoxElement.style.left, 10) + window.scrollX) * dpr,
+        top: (parseInt(selectionBoxElement.style.top, 10) + window.scrollY) * dpr,
+        width: parseInt(selectionBoxElement.style.width, 10) * dpr,
+        height: parseInt(selectionBoxElement.style.height, 10) * dpr,
+    };
+}
+
+function scanQRCode(dataUrl) {
+    console.log('Scanning QR code...');
+    console.log(dataUrl);
+
+    return 'QR Code data';
+}
+
+async function cropImageData(dataUrl, selectionBox) {
+    const image = await loadImage(dataUrl);
+
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+
+    canvas.width = selectionBox.width;
+    canvas.height = selectionBox.height;
+
+    context.drawImage(
+        image,
+        selectionBox.left,
+        selectionBox.top,
+        selectionBox.width,
+        selectionBox.height,
+        0,
+        0,
+        selectionBox.width,
+        selectionBox.height
+    );
+
+    return canvas.toDataURL();
+}
+
+function loadImage(dataUrl) {
+    return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = reject;
+        image.src = dataUrl;
+    });
+}
