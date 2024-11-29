@@ -1,6 +1,4 @@
 (() => {
-    console.debug('Content script executed');
-
     //region Constants
     const QR_SCANNER_OVERLAY_ID = 'qr-scanner-overlay';
     const QR_SCANNER_SELECTION_BOX_ID = 'qr-scanner-selection-box';
@@ -10,7 +8,7 @@
     //endregion
 
     //region Variables
-    let overlayElement = null;
+    let overlayElement = document.getElementById(QR_SCANNER_OVERLAY_ID);
     let selectionBoxElement = null;
     //endregion
 
@@ -84,14 +82,19 @@
 
         destroyOverlay();
 
-        chrome.runtime.sendMessage({action: 'capture'}, async (response) => {
-            const image = await loadImage(response.dataUrl);
-            const croppedImageData = await getCroppedImageData(image, adjustedSelectionBox);
+        window.removeEventListener('blur', destroyOverlay);
+        window.removeEventListener('keydown', destroyOverlay);
 
-            const QRCodeData = scanQRCode(croppedImageData);
+        if (adjustedSelectionBox.width > 0 && adjustedSelectionBox.height > 0) {
+            chrome.runtime.sendMessage({action: 'capture'}, async (response) => {
+                const image = await loadImage(response.dataUrl);
+                const croppedImageData = await getCroppedImageData(image, adjustedSelectionBox);
 
-            await updateQRDataListInStorage(QRCodeData);
-        });
+                const QRCodeData = scanQRCode(croppedImageData);
+
+                await updateQRDataListInStorage(QRCodeData);
+            });
+        }
 
         //crop image
     }
@@ -101,6 +104,7 @@
     destroyOverlay();
 
     window.addEventListener('blur', destroyOverlay);
+
     window.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
             destroyOverlay();

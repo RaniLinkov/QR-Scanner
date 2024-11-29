@@ -50,7 +50,7 @@ body {
 }
 
 #content > ul > li {
-    flex: 1;
+    height: 3rem;
     padding: .5rem;
     border: 1px solid var(--primary-color);
     background-color: white;
