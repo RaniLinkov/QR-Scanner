@@ -4,6 +4,14 @@
 
 :root {
     --background-color: #f2f2f7;
+    --text-color: black;
+    --shadow-intencity: .3;
+}
+
+:root[theme="dark"] {
+    --background-color: #262629;
+    --text-color: #b5b5b5;
+    --shadow-intencity: .6;
 }
 
 html, body {
@@ -43,24 +51,26 @@ header {
     transform: scale(.95);
 }
 
-#settings-button {
+#dark-mode-button {
     display: flex;
     justify-content: center;
     align-items: center;
     border: none;
     padding: .25rem;
     cursor: pointer;
+    background-color: transparent;
     transition: box-shadow .3s ease;
 }
 
-#settings-button > img {
+#dark-mode-button > img {
     width: 1.5rem;
     height: 1.5rem;
 }
 
-#settings-button:active {
+#dark-mode-button:active {
     transform: scale(.95);
 }
+
 /*endregion*/
 
 /*region main*/
@@ -90,12 +100,13 @@ main {
     padding: .5rem 1rem;
     cursor: pointer;
     background-color: transparent;
-    box-shadow: 0 .25rem .5rem rgba(0, 0, 0, .3);
+    box-shadow: 0 .25rem .5rem rgba(0, 0, 0, var(--shadow-intencity));
     transition: box-shadow .3s ease;
+    color: var(--text-color);
 }
 
 #scan-button:hover {
-    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .3);
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, var(--shadow-intencity));
 }
 
 #scan-button:active {
@@ -107,4 +118,5 @@ footer {
     justify-content: center;
     padding: .5rem;
 }
+
 /*endregion*/

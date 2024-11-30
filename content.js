@@ -93,6 +93,7 @@
                 const QRCodeData = scanQRCode(croppedImageData);
 
                 if (isLink(QRCodeData)) {
+                    createSnackbar(QRCodeData);
                     window.open(QRCodeData, '_blank');
                 } else {
                     createSnackbar('No QR code found or the QR code does not contain a valid URL.');
