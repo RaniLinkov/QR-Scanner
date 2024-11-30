@@ -6,21 +6,29 @@
     <title>Title</title>
 </head>
 <body>
-<div id="header">
-    <span id="title">
-        <img src="icons/icon128.png" alt="Icon">
-        QR SCANNER
-    </span>
+<header>
+    <a id="github-link" class="btn btn-success" href="https://github.com/RaniLinkov" target="_blank">
+        <img draggable="false" src="/icons/github-icon.png" alt="Github Icon">
+    </a>
 
     <button id="settings-button">
-        <img src="icons/settings-icon.png" alt="Settings Icon">
+        <img draggable="false" src="/icons/settings-icon.png" alt="Settings Icon">
     </button>
-</div>
-<div id="content">
+</header>
+
+<main>
+    <img draggable="false" id="main-image" src="icons/qr-code-icon.png" alt="QR Code Icon">
+
     <button id="scan-button">
-        <img src="icons/scan-icon.png" alt="Scan Icon">
+        Scan QR Code
     </button>
-</div>
+</main>
+
+<footer>
+    <a href="https://www.buymeacoffee.com/linkov.roman" target="_blank"><img
+            src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=linkov.roman&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff"
+            alt="Buy Me a Coffee"/></a>
+</footer>
 </body>
 <script src="popup.js"></script>
 </html>
