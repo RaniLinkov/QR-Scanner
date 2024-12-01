@@ -100,8 +100,6 @@
                 }
             });
         }
-
-        //crop image
     }
 
     //endregion
@@ -157,9 +155,6 @@ async function scanQRCode(imageFile) {
     }
 
     return result;
-    // const result = jsQR(imageData.data, imageData.width, imageData.height);
-    //
-    // return result?.data;
 }
 
 async function getCroppedImage(image, selectionBox) {
