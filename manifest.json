@@ -31,12 +31,5 @@
   },
   "background": {
     "service_worker": "background.js"
-  },
-  "licenses": [
-    {
-      "library": "html5-qrcode",
-      "license": "MIT",
-      "source": "https://github.com/mebjas/html5-qrcode"
-    }
-  ]
+  }
 }
