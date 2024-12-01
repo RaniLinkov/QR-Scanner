@@ -1,16 +1,23 @@
+const THEME = 'theme';
+const LIGHT = 'light';
+const DARK = 'dark';
+const ICONS_LIGHT_MODE_PATH = '/icons/light_mode/';
+const ICONS_DARK_MODE_PATH = '/icons/dark_mode/';
+const GIT_HUB_ICON = 'github-icon.png';
+const DARK_MODE_ICON = 'dark-mode-icon.png';
+const QR_CODE_ICON = 'qr-code-icon.png';
+
 document.addEventListener('DOMContentLoaded', () => {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('theme', savedTheme);
+    const savedTheme = localStorage.getItem(THEME) || LIGHT;
+    document.documentElement.setAttribute(THEME, savedTheme);
     updateIcons(savedTheme);
 });
 
-const darkModeButton = document.getElementById('dark-mode-button');
-
-darkModeButton.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('theme', newTheme);
-    localStorage.setItem('theme', newTheme);
+document.getElementById('dark-mode-button').addEventListener('click', () => {
+    const currentTheme = document.documentElement.getAttribute(THEME);
+    const newTheme = currentTheme === DARK ? LIGHT : DARK;
+    document.documentElement.setAttribute(THEME, newTheme);
+    localStorage.setItem(THEME, newTheme);
     updateIcons(newTheme);
 });
 
@@ -19,20 +26,18 @@ function updateIcons(theme) {
     const darkModeButtonIcon = document.querySelector('#dark-mode-button > img');
     const mainImageIcon = document.getElementById('main-image');
 
-    if (theme === 'dark') {
-        githubLinkIcon.src = '/icons/dark_mode/github-icon.png';
-        darkModeButtonIcon.src = '/icons/dark_mode/dark-mode-icon.png';
-        mainImageIcon.src = '/icons/dark_mode/qr-code-icon.png';
+    if (theme === DARK) {
+        githubLinkIcon.src = `${ICONS_DARK_MODE_PATH}${GIT_HUB_ICON}`;
+        darkModeButtonIcon.src = `${ICONS_DARK_MODE_PATH}${DARK_MODE_ICON}`;
+        mainImageIcon.src = `${ICONS_DARK_MODE_PATH}${QR_CODE_ICON}`;
     } else {
-        githubLinkIcon.src = '/icons/light_mode/github-icon.png';
-        darkModeButtonIcon.src = '/icons/light_mode/dark-mode-icon.png';
-        mainImageIcon.src = '/icons/light_mode/qr-code-icon.png';
+        githubLinkIcon.src = `${ICONS_LIGHT_MODE_PATH}${GIT_HUB_ICON}`;
+        darkModeButtonIcon.src = `${ICONS_LIGHT_MODE_PATH}${DARK_MODE_ICON}`;
+        mainImageIcon.src = `${ICONS_LIGHT_MODE_PATH}${QR_CODE_ICON}`;
     }
 }
 
-const scanButton = document.getElementById('scan-button');
-
-scanButton.addEventListener('click', async () => {
+document.getElementById('scan-button').addEventListener('click', async () => {
     await chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
         const [tab] = tabs;
 
@@ -43,16 +48,8 @@ scanButton.addEventListener('click', async () => {
                 tabId: tab.id
             },
             files: ['content.js'],
-        }).then(() => {
-            window.close();
         }).catch((error) => {
-            handleError(error);
-        });
+            console.log(error);
+        }).finally(() => window.close());
     });
 });
-
-function handleError(error) {
-    const content = document.getElementById('content');
-
-    content.innerText = 'Error: ' + error;
-}

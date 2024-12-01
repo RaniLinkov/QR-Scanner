@@ -148,7 +148,7 @@ async function scanQRCode(imageFile) {
         result = await html5QRCode.scanFile(imageFile, true);
         console.log(result);
     } catch (error) {
-        console.error(error);
+        console.error('Error scanning QR code:', error);
     } finally {
         html5QRCode.clear();
         tempDiv.remove();

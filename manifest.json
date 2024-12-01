@@ -16,7 +16,6 @@
         "<all_urls>"
       ],
       "js": [
-        "libs/jsQR.min.js",
         "libs/html5-qrcode.min.js"
       ]
     }
