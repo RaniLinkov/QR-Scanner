@@ -88,15 +88,15 @@
         if (adjustedSelectionBox.width > 0 && adjustedSelectionBox.height > 0) {
             chrome.runtime.sendMessage({action: 'capture'}, async (response) => {
                 const image = await loadImage(response.dataUrl);
-                const croppedImageData = await getCroppedImageData(image, adjustedSelectionBox);
+                const croppedImage = await getCroppedImage(image, adjustedSelectionBox);
 
-                const QRCodeData = scanQRCode(croppedImageData);
+                const QRCodeData = await scanQRCode(croppedImage);
 
                 if (isLink(QRCodeData)) {
                     createSnackbar(QRCodeData);
                     window.open(QRCodeData, '_blank');
                 } else {
-                    createSnackbar('No QR code found or the QR code does not contain a valid URL.');
+                    createSnackbar('No QR code found or the QR code does not contain a valid URL: ' + QRCodeData);
                 }
             });
         }
@@ -134,13 +134,35 @@ function createAdjustedSelectionBox(selectionBoxElement) {
     };
 }
 
-function scanQRCode(imageData) {
-    const result = jsQR(imageData.data, imageData.width, imageData.height);
+async function scanQRCode(imageFile) {
+    const tempDivId = 'temp-qr-code-scanner-div';
 
-    return result?.data;
+    const tempDiv = document.createElement('div');
+    tempDiv.id = tempDivId;
+    tempDiv.style.display = 'none';
+    document.body.appendChild(tempDiv);
+
+    const html5QRCode = new Html5Qrcode(tempDivId);
+
+    let result = null;
+
+    try {
+        result = await html5QRCode.scanFile(imageFile, true);
+        console.log(result);
+    } catch (error) {
+        console.error(error);
+    } finally {
+        html5QRCode.clear();
+        tempDiv.remove();
+    }
+
+    return result;
+    // const result = jsQR(imageData.data, imageData.width, imageData.height);
+    //
+    // return result?.data;
 }
 
-async function getCroppedImageData(image, selectionBox) {
+async function getCroppedImage(image, selectionBox) {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
 
@@ -159,7 +181,8 @@ async function getCroppedImageData(image, selectionBox) {
         selectionBox.height
     );
 
-    return context.getImageData(0, 0, selectionBox.width, selectionBox.height);
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+    return new File([blob], "cropped-image.png", {type: "image/png"});
 }
 
 function loadImage(dataUrl) {
@@ -172,8 +195,12 @@ function loadImage(dataUrl) {
 }
 
 function isLink(data) {
-    const urlPattern = /^(https?:\/\/)([\da-z\.-]+\.[a-z\.]{2,6}|[\d\.]+)([\/\w\.-])\/?$/;
-    return urlPattern.test(data);
+    try {
+        new URL(data);
+        return true;
+    } catch {
+        return false;
+    }
 }
 
 function createSnackbar(message) {
